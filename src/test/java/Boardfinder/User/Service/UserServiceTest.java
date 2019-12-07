@@ -38,36 +38,6 @@ public class UserServiceTest {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private UserRepository repository;
-
-    @Autowired
-    private UserRoleRepository userRoleRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Before
-    public void initialize() {
-        User testUser = new User();
-        testUser.setUsername("adminuser");
-        testUser.setPassword(passwordEncoder.encode("adminadmin"));
-        testUser.setUserRole(userRoleRepository.findByUserRole("ADMIN"));
-
-    }
-
-    /**
-     * Test of registerNewUserAccount method, of class UserService.
-     */
-    /*
-    @Test
-    public void testRegisterNewUserAccount() {
-        //Given
-        Map<String, Object> map = null;
-        
-        
-    }
-
     /**
      * Test of login method, of class UserService.
      */

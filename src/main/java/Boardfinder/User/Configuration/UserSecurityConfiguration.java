@@ -20,12 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class UserSecurityConfiguration{
     
-        //@Autowired
-        //DataSource datasource;
-        
-        //@Autowired
-        //In med autentisering senare
-     
         @Bean
         public PasswordEncoder passwordEncoder() {
                 return new BCryptPasswordEncoder();
