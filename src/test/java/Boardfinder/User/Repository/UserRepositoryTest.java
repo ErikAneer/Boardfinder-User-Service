@@ -5,7 +5,6 @@ package Boardfinder.User.Repository;
 
 import Boardfinder.User.Domain.User;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import static org.assertj.core.api.Assertions.assertThat; 
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
