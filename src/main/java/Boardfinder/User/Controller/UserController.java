@@ -35,6 +35,9 @@ public class UserController {
             return response;
         }
         
+        /**
+        * Method not in use. Only used in case database does not have any admin user.
+        */
         @PostMapping("/register")
         public User registerNewUserAccount(@RequestBody Map<String, Object> map) {
         return userService.registerNewUserAccount(map);

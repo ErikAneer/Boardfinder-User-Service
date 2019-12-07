@@ -27,27 +27,25 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
      
+    /**
+     * Method not in use. Only used in case database does not have any admin user.
+     */
     public User registerNewUserAccount(Map<String, Object> map){
-        
         //How handle this?
         /*
         if (usernameExists(map.get("username").toString())) {
             throw new Exception(
               "There is an account with username: " + map.get("gender").toString());
         }*/
-        System.out.println("Entered register method.");
         User user = new User();
         user.setUsername(map.get("username").toString());
-
         user.setPassword(passwordEncoder.encode(map.get("password").toString()));
-        //userRoleRepository.save(new UserRole("ADMIN"));
-        //Implement later? OR just create new UserRoleObject?
         user.setUserRole(userRoleRepository.findByUserRole("ADMIN"));
         return  repository.save(user);
     }
     
     
-    private boolean usernameExists(String username) {
+     boolean usernameExists(String username) {
         User user = repository.findByUsername(username);
         if (user != null) {
             return true;
