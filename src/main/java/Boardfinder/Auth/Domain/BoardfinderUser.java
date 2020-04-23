@@ -1,7 +1,4 @@
-/*
-
- */
-package Boardfinder.User.Domain;
+package Boardfinder.Auth.Domain;
 
 import java.io.Serializable;
 import javax.persistence.Column;
@@ -13,18 +10,16 @@ import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 
 /**
- *
+ * Entity class for storing application users and their role in the database. 
  * @author Erik
  */
 @Entity
-public class User implements Serializable {
+public class BoardfinderUser implements Serializable {
     
     private final static long serialVersionUID = 1L;
     
     @Id
-    @SequenceGenerator(name="user_s_generator", sequenceName = "user_s",
-            initialValue = 1, allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_s_generator")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long id;
     
     @NotNull
@@ -32,19 +27,19 @@ public class User implements Serializable {
     private String username;
     
     private String password;
-    
-    private UserRole userRole;
+        
+    private String role;
 
-    public User() {
+    public BoardfinderUser() {
     }
 
-    public User(String username, String password, UserRole userRole) {
+    public BoardfinderUser(String username, String password, String role) {
         this.username = username;
         this.password = password;
-        this.userRole = userRole;
+        this.role = role;
     }
     
-    public User(String username, String password) {
+    public BoardfinderUser(String username, String password) {
         this.username = username;
         this.password = password;
     }
@@ -73,13 +68,11 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public UserRole getUserRole() {
-        return userRole;
+    public String getRole() {
+        return role;
     }
 
-    public void setUserRole(UserRole userRole) {
-        this.userRole = userRole;
-    }
-    
-    
+    public void setRole(String role) {
+        this.role = role;
+    } 
 }
