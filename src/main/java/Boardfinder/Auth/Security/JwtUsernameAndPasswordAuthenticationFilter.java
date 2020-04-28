@@ -27,68 +27,73 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
-public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter   {
-	
-	// We use auth manager to validate the user credentials
-	private AuthenticationManager authManager;
-	
-	private final JwtConfig jwtConfig;
-        
-                 private final ActiveTokenService tokenService;
-    
-	public JwtUsernameAndPasswordAuthenticationFilter(AuthenticationManager authManager, JwtConfig jwtConfig, ActiveTokenService tokenService) {
-		this.authManager = authManager;
-		this.jwtConfig = jwtConfig;
-		this.tokenService = tokenService;
-		// By default, UsernamePasswordAuthenticationFilter listens to "/login" path. 
-		// In our case, we use "/auth". So, we need to override the defaults.
-		this.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(jwtConfig.getUri(), "POST"));
-	}
-	
-	@Override
-	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-			throws AuthenticationException {
-                                        System.out.println("Entered attemptAuthentication in Auth");
-		
-		try {
-			
-			// 1. Get credentials from request
-			UserCredentials creds = new ObjectMapper().readValue(request.getInputStream(), UserCredentials.class);
-			
-			// 2. Create auth object (contains credentials) which will be used by auth manager
-			UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-					creds.getUsername(), creds.getPassword(), Collections.emptyList());
-			
-			// 3. Authentication manager authenticate the user, and use UserDetialsServiceImpl::loadUserByUsername() method to load the user.
-			return authManager.authenticate(authToken);
-			
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	// Upon successful authentication, generate a token.
-	// The 'auth' passed to successfulAuthentication() is the current authenticated user.
-	@Override
-	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-			Authentication auth) throws IOException, ServletException {
-		
-		Long now = System.currentTimeMillis();
-		String token = Jwts.builder()
-			.setSubject(auth.getName())	
-			// Convert to list of strings. 
-			// This is important because it affects the way we get them back in the Gateway.
-			.claim("authorities", auth.getAuthorities().stream()
-				.map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
-			.setIssuedAt(new Date(now))
-			//.setExpiration(new Date(now + jwtConfig.getExpiration() * 1000))  //remove this expiration as this will be decided on usage instead.
-			.signWith(SignatureAlgorithm.HS512, jwtConfig.getSecret().getBytes())
-			.compact();
-		
-                                    
-                                    // Put in try catch as save could fail. Think of what 
-                                    tokenService.saveToken(new ActiveToken(token, LocalDateTime.now(), LocalDateTime.now()));
-		// Add token to header
-		response.addHeader(jwtConfig.getHeader(), jwtConfig.getPrefix() + token);
-	}
+/**
+ * Filter class that tries to authenticate incoming http requests for login.
+ * Generates ans saves token upon successful authentication. Modified code from
+ * Omar El Gabry
+ */
+public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+
+    private AuthenticationManager authManager;
+
+    private final JwtConfig jwtConfig;
+
+    private final ActiveTokenService tokenService;
+
+    public JwtUsernameAndPasswordAuthenticationFilter(AuthenticationManager authManager, JwtConfig jwtConfig, ActiveTokenService tokenService) {
+        this.authManager = authManager;
+        this.jwtConfig = jwtConfig;
+        this.tokenService = tokenService;
+        this.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(jwtConfig.getUri(), "POST"));
+    }
+
+    /**
+     * Authenticates a user from the incoming request using the request's user
+     * credentials.
+     * @param request
+     * @param response
+     * @return
+     * @throws AuthenticationException if user cannot be authenticated.
+     */
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+            throws AuthenticationException {
+        try {
+            UserCredentials creds = new ObjectMapper().readValue(request.getInputStream(), UserCredentials.class);
+
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    creds.getUsername(), creds.getPassword(), Collections.emptyList());
+
+            return authManager.authenticate(authToken);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Generates a token for the user upon successful authentication. Does also
+     * save the generated token to be able to later verify active users.
+     * @param request
+     * @param response
+     * @param chain
+     * @param auth
+     * @throws IOException
+     * @throws ServletException
+     */
+    @Override
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+            Authentication auth) throws IOException, ServletException {
+
+        Long now = System.currentTimeMillis();
+        String token = Jwts.builder()
+                .setSubject(auth.getName())
+                .claim("authorities", auth.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+                .setIssuedAt(new Date(now))
+                .signWith(SignatureAlgorithm.HS512, jwtConfig.getSecret().getBytes())
+                .compact();
+        tokenService.saveToken(new ActiveToken(token, LocalDateTime.now(), LocalDateTime.now()));
+        response.addHeader(jwtConfig.getHeader(), jwtConfig.getPrefix() + token);
+    }
 }

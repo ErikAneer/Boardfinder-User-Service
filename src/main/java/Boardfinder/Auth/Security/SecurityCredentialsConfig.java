@@ -17,7 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
  * Class for setting configuration of handling of incoming call to the Auth Microservice.
- * @author Erik
+ * Modified code from Omar El Gabry
  */
 @EnableWebSecurity
 public class SecurityCredentialsConfig extends WebSecurityConfigurerAdapter {
@@ -32,7 +32,7 @@ public class SecurityCredentialsConfig extends WebSecurityConfigurerAdapter {
     private ActiveTokenService tokenService;
 
     /**
-     * Overrideing the method to customize configuration of incoming calls to decide what routes are open and for what routes that the caller needs to be authenticated.
+     * Overrideing the method to customize configuration of incoming calls to the Auth application to decide what routes are open and for what routes that the caller needs to be authenticated.
      * @param http
      * @throws Exception 
      */

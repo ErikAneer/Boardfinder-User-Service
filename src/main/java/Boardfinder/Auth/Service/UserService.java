@@ -1,4 +1,3 @@
-
 package Boardfinder.Auth.Service;
 
 import Boardfinder.Auth.Domain.BoardfinderUser;

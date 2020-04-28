@@ -14,6 +14,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service clas for handling users.
+ * Modified code from Omar El Gabry
+ */
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
@@ -24,9 +28,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Loads the application user from the user database and sets the authority used for token to be generated.
+     * @param username
+     * @return
+     * @throws UsernameNotFoundException 
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        System.out.println("Entered loadUserByUsername with username: " + username);
        
             BoardfinderUser appUser = userRepository.findByUsername(username);
 
