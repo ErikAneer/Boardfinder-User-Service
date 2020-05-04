@@ -27,12 +27,15 @@ public class UserService {
      
     /**
      * Method not to be used in production. Only used in dev and in case database does not have any admin user.
+     * An ordinary user is also created just to be able to demonstrate role based access during school presentaion. 
      * Exception will be thrown if try to use more than once as unique restraint exists. 
      */
-    public BoardfinderUser registerNewUserAccount(){
+    public void registerNewUserAccount(){
         LOGGER.info("UserService.registerNewUserAccount called to create user \"admin\"");
-        BoardfinderUser user = new BoardfinderUser("admin", passwordEncoder.encode("admin"), "ADMIN");
-        return  repository.save(user);
+        BoardfinderUser userAdmin = new BoardfinderUser("admin", passwordEncoder.encode("admin"), "ADMIN");
+        repository.save(userAdmin);
+        BoardfinderUser userUser = new BoardfinderUser("user", passwordEncoder.encode("user"), "USER");
+        repository.save(userUser);
     }
     
     /**

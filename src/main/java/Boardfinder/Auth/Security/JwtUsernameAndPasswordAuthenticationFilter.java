@@ -34,7 +34,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
  */
 public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    private AuthenticationManager authManager;
+    private final AuthenticationManager authManager;
 
     private final JwtConfig jwtConfig;
 

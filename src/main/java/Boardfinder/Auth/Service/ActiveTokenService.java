@@ -3,6 +3,8 @@ package Boardfinder.Auth.Service;
 import Boardfinder.Auth.Domain.ActiveToken;
 import Boardfinder.Auth.Repository.ActiveTokensRepository;
 import Boardfinder.Auth.Security.JwtConfig;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import java.time.LocalDateTime;
 
 import javax.servlet.http.HttpServletRequest;
@@ -79,10 +81,8 @@ public class ActiveTokenService {
     public boolean checkIfActiveToken(HttpServletRequest request) {
         
         LOGGER.info("ActiveTokenService.checkIfActiveToken called.");
-        String token = request.getHeader(jwtConfig.getHeader()).replace(jwtConfig.getPrefix(), "");
-
+        String token = request.getHeader(jwtConfig.getHeader()).replace(jwtConfig.getPrefix(), "");      
         return (repo.updateTimeStampForTokenIfItExists(LocalDateTime.now(), token) == 1);
-
     }
 
 }
