@@ -1,6 +1,7 @@
 package Boardfinder.Auth.Security;
 
 import Boardfinder.Auth.Domain.ActiveToken;
+import Boardfinder.Auth.Domain.BoardfinderUser;
 import Boardfinder.Auth.Domain.UserCredentials;
 import Boardfinder.Auth.Service.ActiveTokenService;
 
@@ -26,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.http.HttpStatus;
 
 /**
  * Filter class that tries to authenticate incoming http requests for login.
@@ -95,5 +97,14 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
                 .compact();
         tokenService.saveToken(new ActiveToken(token, LocalDateTime.now(), LocalDateTime.now()));
         response.addHeader(jwtConfig.getHeader(), jwtConfig.getPrefix() + token);
+        BoardfinderUser responseObj = new BoardfinderUser();
+    responseObj.setUsername(auth.getName());
+    responseObj.setRole(auth.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority).collect(Collectors.toList()).toString());
+    response.setStatus(HttpStatus.OK.value());
+    response.setContentType("application/json");
+    String json = new ObjectMapper().writeValueAsString(responseObj);
+    response.getWriter().write(json);
+    response.flushBuffer();
     }
 }
