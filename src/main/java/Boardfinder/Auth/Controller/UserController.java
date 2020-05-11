@@ -40,12 +40,8 @@ public class UserController {
     @GetMapping("/logout")
     public String fetchSignOutFromClient(HttpServletRequest request, HttpServletResponse response) {
         tokenService.deleteToken(request);
-        /*
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null) {
-            new SecurityContextLogoutHandler().logout(request, response, auth);
-        }*/
-        return " \"{\"success\":true, \"data\": [{ \"code\": \"SUCCESS\",\"message\": \"User successfully logged out\"}]}\"";
+        
+        return "User successfully logged out";
     }
 
     /**

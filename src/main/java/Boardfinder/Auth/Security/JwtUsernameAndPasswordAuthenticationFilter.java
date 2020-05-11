@@ -1,6 +1,7 @@
 package Boardfinder.Auth.Security;
 
 import Boardfinder.Auth.Domain.ActiveToken;
+import Boardfinder.Auth.Domain.BoardfinderUser;
 import Boardfinder.Auth.Domain.UserCredentials;
 import Boardfinder.Auth.Service.ActiveTokenService;
 
@@ -26,11 +27,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.http.HttpStatus;
 
 /**
- * Filter class that tries to authenticate incoming http requests for login.
- * Generates ans saves token upon successful authentication. Modified code from
- * Omar El Gabry
+ * Filter class that tries to authenticate incoming http requests for login. Generates ans saves token upon successful authentication. Modified code from Omar
+ * El Gabry
  */
 public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -48,8 +49,8 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
     }
 
     /**
-     * Authenticates a user from the incoming request using the request's user
-     * credentials.
+     * Authenticates a user from the incoming request using the request's user credentials.
+     *
      * @param request
      * @param response
      * @return
@@ -72,8 +73,8 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
     }
 
     /**
-     * Generates a token for the user upon successful authentication. Does also
-     * save the generated token to be able to later verify active users.
+     * Generates a token for the user upon successful authentication. Does also save the generated token to be able to later verify active users
+     * and returns user information such as role so the client can use it for role handling. 
      * @param request
      * @param response
      * @param chain
@@ -95,5 +96,14 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
                 .compact();
         tokenService.saveToken(new ActiveToken(token, LocalDateTime.now(), LocalDateTime.now()));
         response.addHeader(jwtConfig.getHeader(), jwtConfig.getPrefix() + token);
+        BoardfinderUser responseObj = new BoardfinderUser();
+        responseObj.setUsername(auth.getName());
+        responseObj.setRole(auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority).collect(Collectors.toList()).get(0));
+        response.setStatus(HttpStatus.OK.value());
+        response.setContentType("application/json");
+        String json = new ObjectMapper().writeValueAsString(responseObj);
+        response.getWriter().write(json);
+        response.flushBuffer();
     }
 }
